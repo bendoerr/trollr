@@ -44,7 +44,15 @@ func NewAPI(troll *Troll) *API {
 
 	api.mux = &http.ServeMux{}
 
+	addNoticeHeaders := func(w http.ResponseWriter) {
+		w.Header().Set("Notice-Message", "The 'Trollr' API is a simple server that wraps the amazing 'Troll' program. This API is not associated with the author of the 'Troll' program.")
+		w.Header().Set("Notice-Troll-Author", "Torben Mogensen <torbenm@di.ku.dk>")
+		w.Header().Set("Notice-Troll-Url", "http://hjemmesider.diku.dk/~torbenm/Troll/")
+		w.Header().Set("Notice-Troll-Manual;", "http://hjemmesider.diku.dk/~torbenm/Troll/manual.pdf")
+	}
+
 	api.mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		addNoticeHeaders(w)
 		w.WriteHeader(http.StatusNotFound)
 		_ = jsoniter.NewEncoder(w).Encode(RollsResult{
 			Error: http.StatusText(http.StatusNotFound),
@@ -52,6 +60,7 @@ func NewAPI(troll *Troll) *API {
 	}))
 
 	api.mux.Handle("/roll", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		addNoticeHeaders(w)
 		if r.Method != http.MethodGet {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 			_ = jsoniter.NewEncoder(w).Encode(RollsResult{

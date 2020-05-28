@@ -1,9 +1,23 @@
 Thank You Opensource Contributors
 ========================================================================================================================
 
+## Troll: A dice roll language and calculator
+
+Troll is an amazing tool for making dice rolls and calculating their probabilities. You can find out more about it
+[here][troll_home] as well as try it out using their web interface.
+
+```
+Torben Mogensen
+DIKU, University of Copenhagen, Universitetsparken 5, DK-2100 København Ø
+E-mail: torbenm@di.ku.dk Telephone: (+45) 21 84 96 72 Fax: (+45) 35 32 14 01
+```
+
+[troll_home]: http://hjemmesider.diku.dk/~torbenm/Troll/
+
 ## Dicer ASCII Logo
 
 #### ASCII Font
+
 Based on the font 'DOOM' discovered at [Text to Ascii Generator][font_taag].
 
 ```
@@ -15,6 +29,7 @@ figlet release 2.1 -- 12 Aug 1994
 [font_taag]: http://patorjk.com/software/taag/
 
 #### ASCII Dice
+
 By [Joan G. Stark][dice_jgs] discovered at [asciiart.eu][dice_asciiartdice] originally from
 `http://www.geocities.com/SoHo/7373/sports.htm` archived at [archive.org][dice_archive] and used under
 [permission][dice_permission].

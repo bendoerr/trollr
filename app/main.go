@@ -14,8 +14,8 @@ import (
 	confitaflags "github.com/heetch/confita/backend/flags"
 )
 
-// Version is a constant that stores the version information.
-// nolint:deadcode // These values are populated by 'govvv' see https://github.com/troian/govvv
+// These values are populated by 'govvv' see https://github.com/troian/govvv
+// nolint:deadcode
 var Version, GitSummary, BuildDate string
 var BuildInfo string
 
