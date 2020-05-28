@@ -17,13 +17,13 @@ type API struct {
 	troll  *Troll
 }
 
-func NewAPI(troll *Troll) *API {
+func NewAPI(listen string, troll *Troll) *API {
 	api := &API{
 		troll: troll,
 	}
 
 	api.server = &http.Server{
-		Addr:              ":8796",
+		Addr:              listen,
 		Handler:           nil,
 		TLSConfig:         nil,
 		ReadTimeout:       5 * time.Second,

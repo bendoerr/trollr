@@ -2,6 +2,6 @@ package trollr
 
 type AppConfig struct {
 	TrollBin string `config:"troll-bin,required"`
-	Mosmllib string `config:"mosmllib,required"`
+	Mosmllib string `config:"mosmllib"`
 	Listen   string `config:"listen"`
 }

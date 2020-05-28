@@ -64,7 +64,7 @@ func main() {
 		// Create the parts
 		px := util.NewPoolExecutor(util.Run)
 		troll := trollr.NewTroll(cfg.TrollBin, px.Run)
-		http := trollr.NewAPI(troll)
+		http := trollr.NewAPI(cfg.Listen, troll)
 
 		// Start the HTTP Server
 		http.Start()
