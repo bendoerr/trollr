@@ -14,7 +14,7 @@ E-mail: torbenm@di.ku.dk Telephone: (+45) 21 84 96 72 Fax: (+45) 35 32 14 01
 
 [troll_home]: http://hjemmesider.diku.dk/~torbenm/Troll/
 
-## Dicer ASCII Logo
+## Trollr ASCII Logo
 
 #### ASCII Font
 
