@@ -16,7 +16,20 @@ import (
 
 // Version is a constant that stores the version information.
 // nolint:deadcode // These values are populated by 'govvv' see https://github.com/troian/govvv
-var Version, GitSummary, GitCommit, GitState string
+var Version, GitSummary, BuildDate string
+var BuildInfo string
+
+func init() {
+	if len(Version) < 1 {
+		Version = "dev"
+	}
+
+	if len(GitSummary) < 1 {
+		GitSummary = "snapshot"
+	}
+
+	BuildInfo = fmt.Sprintf("Src Version: %s\n   Build Date: %s\n", GitSummary, BuildDate)
+}
 
 func main() {
 	for {
@@ -35,14 +48,6 @@ func main() {
 			os.Exit(1)
 		}
 
-		if len(Version) < 1 {
-			Version = "dev"
-		}
-
-		if GitState == "dirty" {
-			Version = Version + "*"
-		}
-
 		// Print out a fancy logo!
 		fmt.Printf(` 
      _____         _ _          .-------.    ______
@@ -52,8 +57,9 @@ func main() {
       | | | | (_) | | | |     |   o   |o/ \o   /o    /
       | |_|  \___/|_|_|_|     |     o |/   \ o/  o  /
       \_/ %-18s  '-------'     \/____o/
-          %s
-`+"\n\n", Version, GitSummary+"-"+GitCommit+"-"+GitState)
+`+"\n", Version)
+
+		fmt.Printf("  %s\n", BuildInfo)
 
 		// Create the parts
 		px := util.NewPoolExecutor(util.Run)
