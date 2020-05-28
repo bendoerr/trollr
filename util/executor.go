@@ -103,7 +103,7 @@ func Run(ctx context.Context, command string, stdin *string, args ...string) Exe
 type TestExecution struct {
 	TestCommand  string
 	TestArgs     []string
-	TestStdin	 string
+	TestStdin    string
 	TestStdout   *bytes.Buffer
 	TestStderr   *bytes.Buffer
 	TestExitCode int

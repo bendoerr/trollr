@@ -3,17 +3,18 @@ package trollr
 import (
 	"context"
 	"fmt"
-	"github.com/json-iterator/go"
-	"github.com/json-iterator/go/extra"
 	"net/http"
 	"strconv"
 	"time"
+
+	jsoniter "github.com/json-iterator/go"
+	"github.com/json-iterator/go/extra"
 )
 
 type API struct {
 	server *http.Server
-	mux *http.ServeMux
-	troll *Troll
+	mux    *http.ServeMux
+	troll  *Troll
 }
 
 func NewAPI(troll *Troll) *API {
@@ -87,7 +88,10 @@ func NewAPI(troll *Troll) *API {
 }
 
 func (api *API) Start() {
-	go api.server.ListenAndServe()
+	go func() {
+		err := api.server.ListenAndServe()
+		fmt.Println("server exited: ", err)
+	}()
 }
 
 func (api *API) Stop() error {

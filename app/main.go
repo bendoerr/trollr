@@ -3,17 +3,19 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/bendoerr/trollr"
 	"github.com/bendoerr/trollr/util"
 	"github.com/heetch/confita"
 	confitaenv "github.com/heetch/confita/backend/env"
 	confitaflags "github.com/heetch/confita/backend/flags"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 // Version is a constant that stores the version information.
+// nolint:deadcode // These values are populated by 'govvv' see https://github.com/troian/govvv
 var Version, GitSummary, GitCommit, GitState string
 
 func main() {
@@ -33,6 +35,14 @@ func main() {
 			os.Exit(1)
 		}
 
+		if len(Version) < 1 {
+			Version = "dev"
+		}
+
+		if GitState == "dirty" {
+			Version = Version + "*"
+		}
+
 		// Print out a fancy logo!
 		fmt.Printf(` 
      _____         _ _          .-------.    ______
@@ -43,7 +53,7 @@ func main() {
       | |_|  \___/|_|_|_|     |     o |/   \ o/  o  /
       \_/ %-18s  '-------'     \/____o/
           %s
-`+"\n\n", Version, GitSummary)
+`+"\n\n", Version, GitSummary+"-"+GitCommit+"-"+GitState)
 
 		// Create the parts
 		px := util.NewPoolExecutor(util.Run)
@@ -62,7 +72,7 @@ func main() {
 
 		// Signal and exit handling from here down
 		sigchan := make(chan os.Signal, 1)
-		signal.Notify(sigchan, os.Interrupt, os.Kill, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+		signal.Notify(sigchan, os.Interrupt, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 
 		sig := <-sigchan
 		num := int(sig.(syscall.Signal))
