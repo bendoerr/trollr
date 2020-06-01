@@ -34,11 +34,10 @@ func init() {
 
 func main() {
 	// Setup the logger
-	zapLogger, _ := zap.NewProduction()
+	var zapLogger zap.Logger
 	defer func() {
 		_ = zapLogger.Sync()
 	}()
-	logger := zapLogger.Named("main")
 
 	for {
 		cfg := AppConfig{
@@ -69,6 +68,14 @@ func main() {
 
 		fmt.Printf("  %s\n", BuildInfo)
 
+		// Setup logging
+		zapConfig := zap.NewProductionConfig()
+		if len(cfg.LogFile) > 0 {
+			zapConfig.OutputPaths = []string{cfg.LogFile}
+		}
+		zapLogger, _ := zapConfig.Build()
+		logger := zapLogger.Named("main")
+
 		// Setup Services
 		tx := exec.NewTimingExecutor(exec.Run)
 		lx := exec.NewLoggingExecutor(tx.Run, logger)
@@ -82,6 +89,7 @@ func main() {
 		// Confirm configuration values
 		fmt.Printf("  Running with Configuration:\n")
 		fmt.Printf("    Listen:    '%s'\n", cfg.Listen)
+		fmt.Printf("    Log File:  '%s'\n", cfg.LogFile)
 		fmt.Printf("    Mosmllib:  '%s'\n", cfg.Mosmllib)
 		fmt.Printf("    Troll Bin: '%s'\n", cfg.TrollBin)
 		fmt.Printf("\n\n")
