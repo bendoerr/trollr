@@ -1,11 +1,12 @@
 package middleware
 
 import (
-	"github.com/felixge/httpsnoop"
-	"github.com/mitchellh/go-server-timing"
-	"go.uber.org/zap"
 	"net/http"
 	"strings"
+
+	"github.com/felixge/httpsnoop"
+	servertiming "github.com/mitchellh/go-server-timing"
+	"go.uber.org/zap"
 )
 
 func LoggingMiddleware(next http.Handler, logger *zap.Logger) http.Handler {

@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/bendoerr/trollr/middleware"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/bendoerr/trollr/middleware"
 
 	"github.com/didip/tollbooth"
 	servertiming "github.com/mitchellh/go-server-timing"
@@ -126,4 +127,3 @@ func (api *API) Start() {
 func (api *API) Stop() error {
 	return api.server.Shutdown(context.Background())
 }
-

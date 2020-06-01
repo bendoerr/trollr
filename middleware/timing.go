@@ -1,8 +1,9 @@
 package middleware
 
 import (
-	"github.com/mitchellh/go-server-timing"
 	"net/http"
+
+	servertiming "github.com/mitchellh/go-server-timing"
 )
 
 func TimingMiddleware(next http.Handler) http.Handler {
@@ -17,4 +18,3 @@ func TimingMiddleware(next http.Handler) http.Handler {
 		w.Header().Set(servertiming.HeaderKey, timing.String())
 	})
 }
-

@@ -2,8 +2,9 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/felixge/httpsnoop"
 	"net/http"
+
+	"github.com/felixge/httpsnoop"
 )
 
 func PostponeWriteMiddleware(next http.Handler) http.Handler {
@@ -41,4 +42,3 @@ func PostponeWriteMiddleware(next http.Handler) http.Handler {
 		}
 	})
 }
-
