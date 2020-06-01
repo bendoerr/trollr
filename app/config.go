@@ -1,4 +1,4 @@
-package trollr
+package main
 
 type AppConfig struct {
 	TrollBin string `config:"troll-bin,required"`

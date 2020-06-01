@@ -1,4 +1,4 @@
-package trollr
+package main
 
 import (
 	"context"
@@ -7,17 +7,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bendoerr/trollr/util"
+	servertiming "github.com/mitchellh/go-server-timing"
+
+	"github.com/bendoerr/trollr/exec"
 )
 
 type Troll struct {
 	path     string
-	executor util.Executor
+	executor exec.Executor
 	timeout  time.Duration
 	max      int
 }
 
-func NewTroll(path string, executor util.Executor) *Troll {
+func NewTroll(path string, executor exec.Executor) *Troll {
 	return &Troll{
 		path:     path,
 		executor: executor,
@@ -57,9 +59,11 @@ func (t *Troll) MakeRolls(ctx context.Context, num int, definition string) Rolls
 		return r
 	}
 
-	start := time.Now()
+	timing := servertiming.FromContext(ctx)
+	metric := timing.NewMetric("submit").Start()
 	xr := t.executor(ctx, t.path, &definition, strconv.Itoa(num))
-	r.Runtime = time.Since(start).Milliseconds()
+	metric.Stop()
+	r.Runtime = metric.Duration.Milliseconds()
 
 	if xr.Err() != nil {
 		r.Err = xr.Err()

@@ -6,12 +6,13 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
-	"github.com/bendoerr/trollr"
-	"github.com/bendoerr/trollr/util"
+	"github.com/bendoerr/trollr/exec"
 	"github.com/heetch/confita"
 	confitaenv "github.com/heetch/confita/backend/env"
 	confitaflags "github.com/heetch/confita/backend/flags"
+	"go.uber.org/zap"
 )
 
 // These values are populated by 'govvv' see https://github.com/troian/govvv
@@ -32,9 +33,16 @@ func init() {
 }
 
 func main() {
+	// Setup the logger
+	zapLogger, _ := zap.NewProduction()
+	defer func() {
+		_ = zapLogger.Sync()
+	}()
+	logger := zapLogger.Named("main")
+
 	for {
-		cfg := trollr.AppConfig{
-			Listen: ":7891",
+		cfg := AppConfig{
+			Listen: ":6789",
 		}
 
 		// Load the configuration
@@ -61,10 +69,12 @@ func main() {
 
 		fmt.Printf("  %s\n", BuildInfo)
 
-		// Create the parts
-		px := util.NewPoolExecutor(util.Run)
-		troll := trollr.NewTroll(cfg.TrollBin, px.Run)
-		http := trollr.NewAPI(cfg.Listen, troll)
+		// Setup Services
+		tx := exec.NewTimingExecutor(exec.Run)
+		lx := exec.NewLoggingExecutor(tx.Run, logger)
+		px := exec.NewPoolExecutor(lx.Run)
+		troll := NewTroll(cfg.TrollBin, px.Run)
+		http := NewAPI(cfg.Listen, troll, logger.Named("http"))
 
 		// Start the HTTP Server
 		http.Start()
@@ -79,6 +89,9 @@ func main() {
 		// Signal and exit handling from here down
 		sigchan := make(chan os.Signal, 1)
 		signal.Notify(sigchan, os.Interrupt, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+
+		time.Sleep(time.Second)
+		logger.Info("started")
 
 		sig := <-sigchan
 		num := int(sig.(syscall.Signal))

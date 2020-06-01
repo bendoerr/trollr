@@ -1,11 +1,16 @@
-package trollr
+package main
 
 import (
 	"context"
 	"fmt"
+	"github.com/bendoerr/trollr/middleware"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/didip/tollbooth"
+	servertiming "github.com/mitchellh/go-server-timing"
+	"go.uber.org/zap"
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/json-iterator/go/extra"
@@ -17,7 +22,7 @@ type API struct {
 	troll  *Troll
 }
 
-func NewAPI(listen string, troll *Troll) *API {
+func NewAPI(listen string, troll *Troll, logger *zap.Logger) *API {
 	api := &API{
 		troll: troll,
 	}
@@ -72,6 +77,14 @@ func NewAPI(listen string, troll *Troll) *API {
 		d := r.URL.Query().Get("d")
 		n := r.URL.Query().Get("n")
 
+		if len(d) < 1 {
+			w.WriteHeader(http.StatusBadRequest)
+			_ = jsoniter.NewEncoder(w).Encode(RollsResult{
+				Error: "no roll definition given",
+			})
+			return
+		}
+
 		c := 1
 		if len(n) > 0 {
 			i, err := strconv.Atoi(n)
@@ -91,7 +104,14 @@ func NewAPI(listen string, troll *Troll) *API {
 		}
 	}))
 
-	api.server.Handler = api.mux
+	h := http.Handler(api.mux)
+	h = tollbooth.LimitHandler(tollbooth.NewLimiter(1, nil), h)
+	h = middleware.JsonContentTypeMiddleware(h)
+	h = middleware.TimingMiddleware(h)
+	h = middleware.LoggingMiddleware(h, logger)
+	h = servertiming.Middleware(h, nil)
+	h = middleware.PostponeWriteMiddleware(h)
+	api.server.Handler = h
 
 	return api
 }
@@ -106,3 +126,4 @@ func (api *API) Start() {
 func (api *API) Stop() error {
 	return api.server.Shutdown(context.Background())
 }
+
