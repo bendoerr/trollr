@@ -57,7 +57,7 @@ func CumulativeFromString(s string) (Cumulative, error) {
 	case string(CumulativeLesserThanOrEqual):
 		return CumulativeLesserThanOrEqual, nil
 	default:
-		return Cumulative(""), fmt.Errorf("value '%s' is not a valid accumulate setting")
+		return Cumulative(""), fmt.Errorf("value '%s' is not a valid accumulate setting", s)
 	}
 }
 
@@ -136,7 +136,7 @@ func (t *Troll) MakeRolls(ctx context.Context, num int, definition string) Rolls
 	return r
 }
 
-func (t *Troll) CalcRoll(ctx context.Context, definition string, accumulate string) CalcResult {
+func (t *Troll) CalcRoll(ctx context.Context, definition string, cumulative string) CalcResult {
 	r := CalcResult{
 		Definition:       definition,
 		ProbabilitiesCum: make(Probabilities),
@@ -146,8 +146,8 @@ func (t *Troll) CalcRoll(ctx context.Context, definition string, accumulate stri
 	var err error
 
 	acc := CumulativeGreaterThanOrEqual
-	if len(accumulate) > 0 {
-		acc, err = CumulativeFromString(accumulate)
+	if len(cumulative) > 0 {
+		acc, err = CumulativeFromString(cumulative)
 		if err != nil {
 			r.Err = err
 			r.Error = err.Error()

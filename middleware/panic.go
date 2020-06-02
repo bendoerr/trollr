@@ -12,7 +12,7 @@ func Recovery(next http.Handler) http.Handler {
 		defer func() {
 			err := recover()
 			if err != nil {
-				fmt.Println(err) // May be log this error? Send to sentry?
+				fmt.Println(err)
 
 				jsonBody, _ := json.Marshal(map[string]string{
 					"error": "There was an internal server error",
@@ -20,7 +20,10 @@ func Recovery(next http.Handler) http.Handler {
 
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusInternalServerError)
-				w.Write(jsonBody)
+				_, err := w.Write(jsonBody)
+				if err != nil {
+					fmt.Println(err)
+				}
 			}
 
 		}()
