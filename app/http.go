@@ -8,13 +8,11 @@ import (
 	"time"
 
 	"github.com/bendoerr/trollr/middleware"
-
 	"github.com/didip/tollbooth"
-	servertiming "github.com/mitchellh/go-server-timing"
-	"go.uber.org/zap"
-
 	jsoniter "github.com/json-iterator/go"
 	"github.com/json-iterator/go/extra"
+	servertiming "github.com/mitchellh/go-server-timing"
+	"go.uber.org/zap"
 )
 
 type API struct {
@@ -50,15 +48,7 @@ func NewAPI(listen string, troll *Troll, logger *zap.Logger) *API {
 
 	api.mux = &http.ServeMux{}
 
-	addNoticeHeaders := func(w http.ResponseWriter) {
-		w.Header().Set("Notice-Message", "The 'Trollr' API is a simple server that wraps the amazing 'Troll' program. This API is not associated with the author of the 'Troll' program.")
-		w.Header().Set("Notice-Troll-Author", "Torben Mogensen <torbenm@di.ku.dk>")
-		w.Header().Set("Notice-Troll-Url", "http://hjemmesider.diku.dk/~torbenm/Troll/")
-		w.Header().Set("Notice-Troll-Manual;", "http://hjemmesider.diku.dk/~torbenm/Troll/manual.pdf")
-	}
-
 	api.mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		addNoticeHeaders(w)
 		w.WriteHeader(http.StatusNotFound)
 		_ = jsoniter.NewEncoder(w).Encode(RollsResult{
 			Error: http.StatusText(http.StatusNotFound),
@@ -66,15 +56,6 @@ func NewAPI(listen string, troll *Troll, logger *zap.Logger) *API {
 	}))
 
 	api.mux.Handle("/roll", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		addNoticeHeaders(w)
-		if r.Method != http.MethodGet {
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			_ = jsoniter.NewEncoder(w).Encode(RollsResult{
-				Error: http.StatusText(http.StatusMethodNotAllowed),
-			})
-			return
-		}
-
 		d := r.URL.Query().Get("d")
 		n := r.URL.Query().Get("n")
 
@@ -105,13 +86,39 @@ func NewAPI(listen string, troll *Troll, logger *zap.Logger) *API {
 		}
 	}))
 
+	api.mux.Handle("/calc", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		d := r.URL.Query().Get("d")
+		c := r.URL.Query().Get("c")
+
+		if len(d) < 1 {
+			w.WriteHeader(http.StatusBadRequest)
+			_ = jsoniter.NewEncoder(w).Encode(RollsResult{
+				Error: "no roll definition given",
+			})
+			return
+		}
+
+		res := api.troll.CalcRoll(r.Context(), d, c)
+		if res.Err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+		}
+
+		err := jsoniter.NewEncoder(w).Encode(res)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}))
+
 	h := http.Handler(api.mux)
-	h = tollbooth.LimitHandler(tollbooth.NewLimiter(1, nil), h)
+	h = middleware.GetMethodOnlyMiddleware(h)
 	h = middleware.JsonContentTypeMiddleware(h)
+	h = middleware.NoticeHeadersMiddleware(h)
 	h = middleware.TimingMiddleware(h)
 	h = middleware.LoggingMiddleware(h, logger)
 	h = servertiming.Middleware(h, nil)
 	h = middleware.PostponeWriteMiddleware(h)
+	h = middleware.Recovery(h)
+	h = tollbooth.LimitHandler(tollbooth.NewLimiter(1, nil), h)
 	api.server.Handler = h
 
 	return api
