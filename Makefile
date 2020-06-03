@@ -51,7 +51,7 @@ fmt: $(TOOL_GOIMPORTS)
 	$(TOOL_GOFMT) -w -s $(PKGS)
 	$(TOOL_GOIMPORTS) -w $(PKGS)
 
-deps:
+deps: $(TOOL_GOVVV) $(TOOL_GOLINT) $(TOOL_GOIMPORTS)
 	go get -v -t -d ./...
 
 test:
@@ -62,7 +62,7 @@ run: $(TOOL_GOVVV)
 
 build: $(TOOL_GOVVV)
 	mkdir -p out/build
-	go build -v -ldflags="$(shell $(TOOL_GOVVV) -flags)" ./app: -o
+	go build -v -ldflags="$(shell $(TOOL_GOVVV) -flags)" -o out/build/trollr ./app
 
 $(PLATFORMS): $(TOOL_GOVVV)
 	mkdir -p out/release
