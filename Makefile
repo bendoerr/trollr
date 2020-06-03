@@ -14,8 +14,18 @@ VERSION ?= vlatest
 PLATFORMS := windows linux darwin
 os = $(word 1, $@)
 
-.PHONY: lint \
-		fmt
+.PHONY: \
+		$(PLATFORMS) \
+		build \
+		clean \
+		deps \
+		fmt \
+		lint \
+		run \
+		test \
+        container \
+        release \
+        run-container \
 
 .DEFAULT_GOAL := run
 
@@ -31,6 +41,9 @@ $(TOOL_GOVVV):
 	go get github.com/JoshuaDoes/govvv
 	go mod tidy
 
+clean:
+	rm -rf out
+
 lint: $(TOOL_GOLINT)
 	$(TOOL_GOLINT) run
 
@@ -38,21 +51,27 @@ fmt: $(TOOL_GOIMPORTS)
 	$(TOOL_GOFMT) -w -s $(PKGS)
 	$(TOOL_GOIMPORTS) -w $(PKGS)
 
+deps:
+	go get -v -t -d ./...
+
+test:
+	go test -v ./...
+
 run: $(TOOL_GOVVV)
-	go run -ldflags="$(shell $(TOOL_GOVVV) -flags)" ./app/main.go
+	go run -v -ldflags="$(shell $(TOOL_GOVVV) -flags)" ./app
 
-.PHONY: $(PLATFORMS)
+build: $(TOOL_GOVVV)
+	mkdir -p out/build
+	go build -v -ldflags="$(shell $(TOOL_GOVVV) -flags)" ./app: -o
+
 $(PLATFORMS): $(TOOL_GOVVV)
-	mkdir -p release
-	GOOS=$(os) GOARCH=amd64 CGO_ENABLED=0 go build -tags netgo -ldflags "-extldflags \"-static\" -s -w $(shell $(TOOL_GOVVV) -flags)" -a -o release/$(BINARY)-$(VERSION)-$(os)-amd64 ./app/main.go
+	mkdir -p out/release
+	GOOS=$(os) GOARCH=amd64 CGO_ENABLED=0 go build -v -tags netgo -ldflags "-extldflags \"-static\" -s -w $(shell $(TOOL_GOVVV) -flags)" -a -o out/release/$(BINARY)-$(VERSION)-$(os)-amd64 ./app
 
-.PHONY: release
 release: windows linux darwin
 
-.PHONY: container
 container:
 	docker build --tag bendoerr/trollr:latest .
 
-.PHONY: run-container
 run-container: container
 	docker run --publish 7891:7891 --interactive --tty --label trollr bendoerr/trollr:latest

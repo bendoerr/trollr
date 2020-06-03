@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/felixge/httpsnoop"
@@ -12,7 +13,7 @@ import (
 func LoggingMiddleware(next http.Handler, logger *zap.Logger) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fs := []zap.Field{
-			zap.Int64("request.request_uri", r.ContentLength),
+			zap.Int64("request.content_length", r.ContentLength),
 			zap.String("request.host", r.Host),
 			zap.String("request.method", r.Method),
 			zap.String("request.proto", r.Proto),
@@ -25,7 +26,7 @@ func LoggingMiddleware(next http.Handler, logger *zap.Logger) http.Handler {
 		for k, v := range r.Header {
 			if len(v) > 1 {
 				for i := range v {
-					fs = append(fs, zap.String("request.header."+strings.ReplaceAll(strings.ToLower(k), "-", "_")+"_"+string(i), v[i]))
+					fs = append(fs, zap.String("request.header."+strings.ReplaceAll(strings.ToLower(k), "-", "_")+"_"+strconv.Itoa(i), v[i]))
 				}
 			} else {
 				fs = append(fs, zap.String("request.header."+strings.ReplaceAll(strings.ToLower(k), "-", "_"), v[0]))

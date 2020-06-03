@@ -13,12 +13,12 @@ RUN apt-get update \
 FROM golang:1.13 AS builder
 WORKDIR /go/src/trollr
 COPY . .
-RUN make linux
+RUN make clean && make linux
 
 FROM ubuntu
 ENV TROLL_BIN=/troll/main
 ENV LISTEN=":7891"
 EXPOSE 7891
 COPY --from=mosml /troll/main /troll/main
-COPY --from=builder /go/src/trollr/release/trollr-*-linux-amd64 /trollr/main
+COPY --from=builder /go/src/trollr/out/release/trollr-*-linux-amd64 /trollr/main
 CMD ["/trollr/main"]
