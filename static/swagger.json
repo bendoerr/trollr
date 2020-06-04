@@ -1,0 +1,205 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Trollr is a simple wrapper around the amazing Troll: A dice roll language and calculator created by Torben Mogensen.\nThe wrapper simply exposes and HTTP/JSON server that executes Troll, parses the results and returns it. The server\nhas some built in rate-limiting and pooling to prevent abuse. I created this small server to support a Discord bot\nthat I am working on.",
+    "title": "Trollr: A HTTP/JSON API for Troll",
+    "contact": {
+      "name": "Ben Doerr",
+      "url": "https://trollr.live",
+      "email": "craftsman@bendoer.me"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "http://opensource.org/licenses/MIT"
+    },
+    "version": "0.1.0-alpha"
+  },
+  "host": "trollr.live",
+  "basePath": "/api",
+  "paths": {
+    "/calc": {
+      "get": {
+        "description": "Given a roll definition this will delegate the roll to Troll and return the\nprobabilities structured as JSON.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "API"
+        ],
+        "summary": "Calculate the probabilities of dice roll.",
+        "operationId": "calc",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The Troll roll definition",
+            "name": "d",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "What kind of cumulative probabilities you would like. One of 'ge' (default), 'gt', 'le', or 'lt'.",
+            "name": "c",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The probabilities of rolling the dice",
+            "schema": {
+              "$ref": "#/definitions/CalcResult"
+            }
+          },
+          "400": {
+            "description": "The error will be populated in the result",
+            "schema": {
+              "$ref": "#/definitions/CalcResult"
+            }
+          }
+        }
+      }
+    },
+    "/roll": {
+      "get": {
+        "description": "Given a roll definition this will delegate the roll to Troll and return the\nresults structured as JSON.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "API"
+        ],
+        "summary": "Roll Dice",
+        "operationId": "roll",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The Troll roll definition",
+            "name": "d",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "The number of times to repeat the roll",
+            "name": "n",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The results from rolling the dice",
+            "schema": {
+              "$ref": "#/definitions/RollsResult"
+            }
+          },
+          "400": {
+            "description": "The error will be populated in the result",
+            "schema": {
+              "$ref": "#/definitions/RollsResult"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CalcResult": {
+      "type": "object",
+      "properties": {
+        "Average": {
+          "$ref": "#/definitions/Probability"
+        },
+        "Cumulative": {
+          "type": "string"
+        },
+        "Definition": {
+          "type": "string"
+        },
+        "Error": {
+          "type": "string"
+        },
+        "MeanDeviation": {
+          "$ref": "#/definitions/Probability"
+        },
+        "ProbabilitiesCum": {
+          "$ref": "#/definitions/Probabilities"
+        },
+        "ProbabilitiesEq": {
+          "$ref": "#/definitions/Probabilities"
+        },
+        "Runtime": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Spread": {
+          "$ref": "#/definitions/Probability"
+        }
+      },
+      "x-go-package": "github.com/bendoerr/trollr/app"
+    },
+    "Probabilities": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Probability"
+      },
+      "x-go-package": "github.com/bendoerr/trollr/app"
+    },
+    "Probability": {
+      "type": "number",
+      "format": "double",
+      "x-go-package": "github.com/bendoerr/trollr/app"
+    },
+    "Roll": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "x-go-package": "github.com/bendoerr/trollr/app"
+    },
+    "Rolls": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Roll"
+      },
+      "x-go-package": "github.com/bendoerr/trollr/app"
+    },
+    "RollsResult": {
+      "type": "object",
+      "properties": {
+        "Definition": {
+          "type": "string"
+        },
+        "Error": {
+          "type": "string"
+        },
+        "NumTimes": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Rolls": {
+          "$ref": "#/definitions/Rolls"
+        },
+        "Runtime": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "x-go-package": "github.com/bendoerr/trollr/app"
+    }
+  }
+}

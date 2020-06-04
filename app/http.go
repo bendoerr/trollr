@@ -1,3 +1,25 @@
+// Trollr: A HTTP/JSON API for Troll
+//
+// Trollr is a simple wrapper around the amazing Troll: A dice roll language and calculator created by Torben Mogensen.
+// The wrapper simply exposes and HTTP/JSON server that executes Troll, parses the results and returns it. The server
+// has some built in rate-limiting and pooling to prevent abuse. I created this small server to support a Discord bot
+// that I am working on.
+//
+//     Schemes: https
+//     Host: trollr.live
+//     BasePath: /api
+//     Version: 0.1.0-alpha
+//     License: MIT http://opensource.org/licenses/MIT
+//     Contact: Ben Doerr <craftsman@bendoer.me> https://trollr.live
+//
+//     Consumes:
+//     - application/json
+//
+//     Produces:
+//     - application/json
+//
+//
+// swagger:meta
 package main
 
 import (
@@ -21,7 +43,7 @@ type API struct {
 	troll  *Troll
 }
 
-func NewAPI(listen string, troll *Troll, logger *zap.Logger) *API {
+ func NewAPI(listen string, troll *Troll, logger *zap.Logger) *API {
 	api := &API{
 		troll: troll,
 	}
@@ -47,67 +69,11 @@ func NewAPI(listen string, troll *Troll, logger *zap.Logger) *API {
 	extra.RegisterFuzzyDecoders()
 
 	api.mux = &http.ServeMux{}
-
-	api.mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNotFound)
-		_ = jsoniter.NewEncoder(w).Encode(RollsResult{
-			Error: http.StatusText(http.StatusNotFound),
-		})
-	}))
-
-	api.mux.Handle("/roll", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		d := r.URL.Query().Get("d")
-		n := r.URL.Query().Get("n")
-
-		if len(d) < 1 {
-			w.WriteHeader(http.StatusBadRequest)
-			_ = jsoniter.NewEncoder(w).Encode(RollsResult{
-				Error: "no roll definition given",
-			})
-			return
-		}
-
-		c := 1
-		if len(n) > 0 {
-			i, err := strconv.Atoi(n)
-			if err == nil {
-				c = i
-			}
-		}
-
-		res := api.troll.MakeRolls(r.Context(), c, d)
-		if res.Err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-		}
-
-		err := jsoniter.NewEncoder(w).Encode(res)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}))
-
-	api.mux.Handle("/calc", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		d := r.URL.Query().Get("d")
-		c := r.URL.Query().Get("c")
-
-		if len(d) < 1 {
-			w.WriteHeader(http.StatusBadRequest)
-			_ = jsoniter.NewEncoder(w).Encode(RollsResult{
-				Error: "no roll definition given",
-			})
-			return
-		}
-
-		res := api.troll.CalcRoll(r.Context(), d, c)
-		if res.Err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-		}
-
-		err := jsoniter.NewEncoder(w).Encode(res)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}))
+	api.mux.Handle("/", http.HandlerFunc(api.DefaultNotFound))
+	api.mux.Handle("/swagger.json", http.HandlerFunc(api.SwaggerJson))
+	api.mux.Handle("/swagger", http.HandlerFunc(api.SwaggerRedirect))
+	api.mux.Handle("/roll", http.HandlerFunc(api.Roll))
+	api.mux.Handle("/calc", http.HandlerFunc(api.Calc))
 
 	h := http.Handler(api.mux)
 	h = middleware.GetMethodOnlyMiddleware(h)
@@ -119,6 +85,7 @@ func NewAPI(listen string, troll *Troll, logger *zap.Logger) *API {
 	h = middleware.PostponeWriteMiddleware(h)
 	h = middleware.Recovery(h)
 	h = tollbooth.LimitHandler(tollbooth.NewLimiter(1, nil), h)
+
 	api.server.Handler = h
 
 	return api
@@ -133,4 +100,139 @@ func (api *API) Start() {
 
 func (api *API) Stop() error {
 	return api.server.Shutdown(context.Background())
+}
+
+func (api *API) DefaultNotFound(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotFound)
+	_ = jsoniter.NewEncoder(w).Encode(RollsResult{
+		Error: http.StatusText(http.StatusNotFound),
+	})
+}
+
+func (api *API) SwaggerJson(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "static/swagger.json")
+}
+
+func (api *API) SwaggerRedirect(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r,
+		"https://app.swaggerhub.com/apis-docs/bendoerr/Trollr",
+		http.StatusTemporaryRedirect)
+}
+
+// swagger:operation GET /roll API roll
+//
+// Roll Dice
+//
+// Given a roll definition this will delegate the roll to Troll and return the
+// results structured as JSON.
+//
+// ---
+// consumes:
+// - application/json
+// produces:
+// - application/json
+// parameters:
+// - name: "d"
+//   in: "query"
+//   description: "The Troll roll definition"
+//   type: "string"
+//   required: true
+// - name: "n"
+//   in: "query"
+//   description: "The number of times to repeat the roll"
+//   type: "integer"
+//   required: false
+// responses:
+//   '200':
+//     description: "The results from rolling the dice"
+//     schema:
+//       "$ref": "#/definitions/RollsResult"
+//   '400':
+//     description: "The error will be populated in the result"
+//     schema:
+//       "$ref": "#/definitions/RollsResult"
+func (api *API) Roll(w http.ResponseWriter, r *http.Request) {
+	d := r.URL.Query().Get("d")
+	n := r.URL.Query().Get("n")
+
+	if len(d) < 1 {
+		w.WriteHeader(http.StatusBadRequest)
+		_ = jsoniter.NewEncoder(w).Encode(RollsResult{
+			Error: "no roll definition given",
+		})
+		return
+	}
+
+	c := 1
+	if len(n) > 0 {
+		i, err := strconv.Atoi(n)
+		if err == nil {
+			c = i
+		}
+	}
+
+	res := api.troll.MakeRolls(r.Context(), c, d)
+	if res.Err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
+	err := jsoniter.NewEncoder(w).Encode(res)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+// swagger:operation GET /calc API calc
+//
+// Calculate the probabilities of dice roll.
+//
+// Given a roll definition this will delegate the roll to Troll and return the
+// probabilities structured as JSON.
+//
+// ---
+// consumes:
+// - application/json
+// produces:
+// - application/json
+// parameters:
+// - name: "d"
+//   in: "query"
+//   description: "The Troll roll definition"
+//   type: "string"
+//   required: true
+// - name: "c"
+//   in: "query"
+//   description: "What kind of cumulative probabilities you would like. One of 'ge' (default), 'gt', 'le', or 'lt'."
+//   type: "string"
+//   required: false
+// responses:
+//   '200':
+//     description: "The probabilities of rolling the dice"
+//     schema:
+//       "$ref": "#/definitions/CalcResult"
+//   '400':
+//     description: "The error will be populated in the result"
+//     schema:
+//       "$ref": "#/definitions/CalcResult"
+func (api *API) Calc(w http.ResponseWriter, r *http.Request) {
+	d := r.URL.Query().Get("d")
+	c := r.URL.Query().Get("c")
+
+	if len(d) < 1 {
+		w.WriteHeader(http.StatusBadRequest)
+		_ = jsoniter.NewEncoder(w).Encode(RollsResult{
+			Error: "no roll definition given",
+		})
+		return
+	}
+
+	res := api.troll.CalcRoll(r.Context(), d, c)
+	if res.Err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
+	err := jsoniter.NewEncoder(w).Encode(res)
+	if err != nil {
+		fmt.Println(err)
+	}
 }

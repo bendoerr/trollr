@@ -65,6 +65,7 @@ func (a Cumulative) String() string {
 	return string(a)
 }
 
+// swagger:model RollsResult
 type RollsResult struct {
 	Definition string `json:",omitempty"`
 	NumTimes   int    `json:",omitempty"`
@@ -74,6 +75,7 @@ type RollsResult struct {
 	Error      string `json:",omitempty"`
 }
 
+// swagger:model CalcResult
 type CalcResult struct {
 	Cumulative       string        `json:",omitempty"`
 	Average          Probability   `json:",omitempty"`

@@ -64,6 +64,9 @@ build: $(TOOL_GOVVV)
 	mkdir -p out/build
 	go build -v -ldflags="$(shell $(TOOL_GOVVV) -flags)" -o out/build/trollr ./app
 
+swagger:
+	"docker run --rm -it -e GOPATH=$$HOME/go:/go -v $$HOME:$$HOME -w $$(pwd) quay.io/goswagger/swagger generate spec -o static/swagger.json --scan-models
+
 $(PLATFORMS): $(TOOL_GOVVV)
 	mkdir -p out/release
 	GOOS=$(os) GOARCH=amd64 CGO_ENABLED=0 go build -v -tags netgo -ldflags "-extldflags \"-static\" -s -w $(shell $(TOOL_GOVVV) -flags)" -a -o out/release/$(BINARY)-$(VERSION)-$(os)-amd64 ./app
