@@ -6,6 +6,7 @@ TOOL_GOIMPORTS := $(GOBIN)/goimports
 TOOL_GOFMT := $(GOROOT)/bin/gofmt
 TOOL_GOLINT := $(GOBIN)/golangci-lint
 TOOL_GOVVV := $(GOBIN)/govvv
+TOOL_SG2MD := $(shell npm bin -g)/swagger-markdown
 
 PKGS := $(shell go list -f '{{.Dir}}' ./...)
 
@@ -41,6 +42,9 @@ $(TOOL_GOVVV):
 	go get github.com/JoshuaDoes/govvv
 	go mod tidy
 
+$(TOOL_SG2MD):
+	npm install -g swagger-markdown
+
 clean:
 	rm -rf out
 
@@ -65,7 +69,8 @@ build: $(TOOL_GOVVV)
 	go build -v -ldflags="$(shell $(TOOL_GOVVV) -flags)" -o out/build/trollr ./app
 
 swagger:
-	"docker run --rm -it -e GOPATH=$$HOME/go:/go -v $$HOME:$$HOME -w $$(pwd) quay.io/goswagger/swagger generate spec -o static/swagger.json --scan-models
+	docker run --rm -it -e GOPATH=$$HOME/go:/go -v $$HOME:$$HOME -w $$(pwd) quay.io/goswagger/swagger generate spec -o static/swagger.json --scan-models
+	$(TOOL_SG2MD) -i ./static/swagger.json -o API.md
 
 $(PLATFORMS): $(TOOL_GOVVV)
 	mkdir -p out/release
