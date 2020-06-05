@@ -75,11 +75,10 @@ type API struct {
 	api.mux.Handle("/", http.HandlerFunc(api.DefaultNotFound))
 	api.mux.Handle("/swagger.json", http.HandlerFunc(api.SwaggerJson))
 	api.mux.Handle("/swagger", http.HandlerFunc(api.SwaggerRedirect))
-	api.mux.Handle("/roll", http.HandlerFunc(api.Roll))
-	api.mux.Handle("/calc", http.HandlerFunc(api.Calc))
+	api.mux.Handle("/roll", middleware.PostMethodOnlyMiddleware(http.HandlerFunc(api.Roll)))
+	api.mux.Handle("/calc", middleware.PostMethodOnlyMiddleware(http.HandlerFunc(api.Calc)))
 
 	h := http.Handler(api.mux)
-	h = middleware.GetMethodOnlyMiddleware(h)
 	h = middleware.JsonContentTypeMiddleware(h)
 	h = middleware.NoticeHeadersMiddleware(h)
 	h = middleware.TimingMiddleware(h)
@@ -122,7 +121,7 @@ func (api *API) SwaggerRedirect(w http.ResponseWriter, r *http.Request) {
 		http.StatusTemporaryRedirect)
 }
 
-// swagger:operation GET /roll API roll
+// swagger:operation POST /roll API roll
 //
 // Roll Dice
 //
@@ -203,7 +202,7 @@ func (api *API) Roll(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// swagger:operation GET /calc API calc
+// swagger:operation POST /calc API calc
 //
 // Calculate the probabilities of dice roll.
 //

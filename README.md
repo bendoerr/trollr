@@ -39,7 +39,7 @@ addition, you can find the latest Swagger JSON here in this repository or served
 
 ### The API
 
-#### Roll - GET trollr.live/api/roll
+#### Roll - POST trollr.live/api/roll
 
 Given a roll definition this will delegate the roll to Troll and return the
 results structured as JSON.
@@ -86,7 +86,7 @@ results structured as JSON.
 ###### Simple roll definition in the query parameter
 
 ```http request
-GET /api/roll?d=2d6 HTTP/1.1
+POST /api/roll?d=2d6 HTTP/1.1
 Accept: */*
 Host: trollr.live
 
@@ -115,7 +115,7 @@ Notice-Troll-Url: http://hjemmesider.diku.dk/~torbenm/Troll/
 ###### Complex roll definition in the request body
 
 ```http request
-GET /api/roll HTTP/1.1
+POST /api/roll HTTP/1.1
 Accept: application/json, */*
 Host: trollr.live
 
@@ -144,7 +144,7 @@ Notice-Troll-Url: http://hjemmesider.diku.dk/~torbenm/Troll/
 ```
 
 
-#### Calc - GET trollr.live/api/calc
+#### Calc - POST trollr.live/api/calc
 
 Given a roll definition this will delegate the roll to Troll and return the
 probabilities structured as JSON.
@@ -194,7 +194,7 @@ probabilities structured as JSON.
 ##### Example
 
 ```http request
-GET /calc?d=sum+2d6 HTTP/1.1
+POST /calc?d=sum+2d6 HTTP/1.1
 Accept: */*
 Host: localhost:6789
 

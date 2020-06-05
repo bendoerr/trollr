@@ -27,7 +27,7 @@
   "basePath": "/api",
   "paths": {
     "/calc": {
-      "get": {
+      "post": {
         "description": "Given a roll definition this will delegate the roll to Troll and return the\nprobabilities structured as JSON.",
         "consumes": [
           "text/plain"
@@ -79,7 +79,7 @@
       }
     },
     "/roll": {
-      "get": {
+      "post": {
         "description": "Given a roll definition this will delegate the roll to Troll and return the\nresults structured as JSON.",
         "consumes": [
           "text/plain"

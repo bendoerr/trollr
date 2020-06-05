@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("GetMethodOnlyMiddleware", func() {
+var _ = Describe("PostMethodOnlyMiddleware", func() {
 
 	var (
 		m http.Handler
@@ -18,12 +18,11 @@ var _ = Describe("GetMethodOnlyMiddleware", func() {
 	)
 
 	BeforeEach(func() {
-		m = middleware.GetMethodOnlyMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		m = middleware.PostMethodOnlyMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 			_, err := w.Write([]byte{})
 			Expect(err).To(BeNil())
 		}))
-		r = httptest.NewRequest("GET", "/", nil)
 		w = httptest.NewRecorder()
 	})
 
@@ -35,9 +34,8 @@ var _ = Describe("GetMethodOnlyMiddleware", func() {
 		BeforeEach(func() {
 			r = httptest.NewRequest("POST", "/", nil)
 		})
-
-		It("should set StatusMethodNotAllowed", func() {
-			Expect(w.Result().StatusCode).To(Equal(http.StatusMethodNotAllowed))
+		It("should NOT set StatusMethodNotAllowed", func() {
+			Expect(w.Result().StatusCode).To(Not(Equal(http.StatusMethodNotAllowed)))
 		})
 	})
 
@@ -45,15 +43,17 @@ var _ = Describe("GetMethodOnlyMiddleware", func() {
 		BeforeEach(func() {
 			r = httptest.NewRequest("PUT", "/", nil)
 		})
-
 		It("should set StatusMethodNotAllowed", func() {
 			Expect(w.Result().StatusCode).To(Equal(http.StatusMethodNotAllowed))
 		})
 	})
 
 	When("the HTTP method is GET", func() {
-		It("should NOT set StatusMethodNotAllowed", func() {
-			Expect(w.Result().StatusCode).To(Not(Equal(http.StatusMethodNotAllowed)))
+		BeforeEach(func() {
+			r = httptest.NewRequest("GET", "/", nil)
+		})
+		It("should set StatusMethodNotAllowed", func() {
+			Expect(w.Result().StatusCode).To(Equal(http.StatusMethodNotAllowed))
 		})
 	})
 })

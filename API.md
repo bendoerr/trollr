@@ -15,7 +15,7 @@ craftsman@bendoer.me
 
 ### /calc
 
-#### GET
+#### POST
 ##### Summary:
 
 Calculate the probabilities of dice roll.
@@ -42,7 +42,7 @@ probabilities structured as JSON.
 
 ### /roll
 
-#### GET
+#### POST
 ##### Summary:
 
 Roll Dice
