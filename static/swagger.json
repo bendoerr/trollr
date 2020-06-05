@@ -43,9 +43,9 @@
         "parameters": [
           {
             "type": "string",
-            "description": "The Troll roll definition",
+            "description": "The Troll roll definition. This can also be passed as the query parameter 'd'.",
             "name": "d",
-            "in": "query",
+            "in": "body",
             "required": true
           },
           {
@@ -88,9 +88,9 @@
         "parameters": [
           {
             "type": "string",
-            "description": "The Troll roll definition",
+            "description": "The Troll roll definition. This can also be passed as the query parameter 'd'.",
             "name": "d",
-            "in": "query",
+            "in": "body",
             "required": true
           },
           {

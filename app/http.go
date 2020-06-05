@@ -25,8 +25,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/bendoerr/trollr/middleware"
@@ -133,8 +136,8 @@ func (api *API) SwaggerRedirect(w http.ResponseWriter, r *http.Request) {
 // - application/json
 // parameters:
 // - name: "d"
-//   in: "query"
-//   description: "The Troll roll definition"
+//   in: body
+//   description: "The Troll roll definition. This can also be passed as the query parameter 'd'."
 //   type: "string"
 //   required: true
 // - name: "n"
@@ -154,6 +157,19 @@ func (api *API) SwaggerRedirect(w http.ResponseWriter, r *http.Request) {
 func (api *API) Roll(w http.ResponseWriter, r *http.Request) {
 	d := r.URL.Query().Get("d")
 	n := r.URL.Query().Get("n")
+
+	if len(d) < 1 {
+		bytes, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			if err != io.EOF {
+				fmt.Println(err)
+			}
+		}
+		body := strings.TrimSpace(string(bytes))
+		if len(body) > 0 {
+			d = body
+		}
+	}
 
 	if len(d) < 1 {
 		w.WriteHeader(http.StatusBadRequest)
@@ -196,8 +212,8 @@ func (api *API) Roll(w http.ResponseWriter, r *http.Request) {
 // - application/json
 // parameters:
 // - name: "d"
-//   in: "query"
-//   description: "The Troll roll definition"
+//   in: body
+//   description: "The Troll roll definition. This can also be passed as the query parameter 'd'."
 //   type: "string"
 //   required: true
 // - name: "c"
@@ -217,6 +233,19 @@ func (api *API) Roll(w http.ResponseWriter, r *http.Request) {
 func (api *API) Calc(w http.ResponseWriter, r *http.Request) {
 	d := r.URL.Query().Get("d")
 	c := r.URL.Query().Get("c")
+
+	if len(d) < 1 {
+		bytes, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			if err != io.EOF {
+				fmt.Println(err)
+			}
+		}
+		body := strings.TrimSpace(string(bytes))
+		if len(body) > 0 {
+			d = body
+		}
+	}
 
 	if len(d) < 1 {
 		w.WriteHeader(http.StatusBadRequest)

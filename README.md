@@ -48,7 +48,7 @@ results structured as JSON.
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| d | query | The Troll roll definition | Yes | string |
+| d | body | The Troll roll definition. This can also be passed as the query parameter 'd'. | Yes | string |
 | n | query | The number of times to repeat the roll | No | integer |
 
 ###### Responses
@@ -80,7 +80,9 @@ results structured as JSON.
 | ---- | ---- | ----------- | -------- |
 | Rolls | array[[Roll](#roll)] |  |  |
 
-##### Example
+##### Examples
+
+###### Simple roll definition in the query parameter
 
 ```http request
 GET /api/roll?d=2d6 HTTP/1.1
@@ -90,6 +92,7 @@ Host: trollr.live
 
 
 HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
 Notice-Message: The 'Trollr' API is a simple server that wraps the amazing 'Troll' program. This API is not associated with the author of the 'Troll' program.
 Notice-Troll-Author: Torben Mogensen <torbenm@di.ku.dk>
 Notice-Troll-Manual: http://hjemmesider.diku.dk/~torbenm/Troll/manual.pdf
@@ -108,6 +111,38 @@ Notice-Troll-Url: http://hjemmesider.diku.dk/~torbenm/Troll/
 }
 ```
 
+###### Complex roll definition in the request body
+
+```http request
+GET /api/roll HTTP/1.1
+Accept: application/json, */*
+Host: trollr.live
+
+\ Savage Worlds
+N:=8;
+max { sum (accumulate x:=d6 while x=6),
+      sum (accumulate y:=d N while y=N) }
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Notice-Message: The 'Trollr' API is a simple server that wraps the amazing 'Troll' program. This API is not associated with the author of the 'Troll' program.
+Notice-Troll-Author: Torben Mogensen <torbenm@di.ku.dk>
+Notice-Troll-Manual: http://hjemmesider.diku.dk/~torbenm/Troll/manual.pdf
+Notice-Troll-Url: http://hjemmesider.diku.dk/~torbenm/Troll/
+
+{
+    "definition": "\\ Savage Worlds\r\nN:=8;\r\nmax { sum (accumulate x:=d6 while x=6),\r\n      sum (accumulate y:=d N while y=N) }",
+    "num_times": 1,
+    "rolls": [
+        [
+            "4"
+        ]
+    ],
+    "runtime": 1014
+}
+```
+
+
 #### Calc - GET trollr.live/api/calc
 
 Given a roll definition this will delegate the roll to Troll and return the
@@ -117,7 +152,7 @@ probabilities structured as JSON.
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| d | query | The Troll roll definition | Yes | string |
+| d | body | The Troll roll definition. This can also be passed as the query parameter 'd'. | Yes | string |
 | c | query | What kind of cumulative probabilities you would like. One of 'ge' (default), 'gt', 'le', or 'lt'. | No | string |
 
 ###### Responses
@@ -164,6 +199,7 @@ Host: localhost:6789
 
 
 HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
 Notice-Message: The 'Trollr' API is a simple server that wraps the amazing 'Troll' program. This API is not associated with the author of the 'Troll' program.
 Notice-Troll-Author: Torben Mogensen <torbenm@di.ku.dk>
 Notice-Troll-Manual: http://hjemmesider.diku.dk/~torbenm/Troll/manual.pdf
@@ -264,11 +300,11 @@ The [Troll Quick Reference][troll_quick] also lists some other operators as well
 ##### Savage Worlds (Aces/Exploding and Wild Card dice)
 
 ```text
-\ Savage World (d8)
-trait:=d8
-trait_max:=8
+\ Savage Worlds
+N:=8;
+
 max { sum (accumulate x:=d6 while x=6),
-      sum (accumulate trait while trait=trait_max) }
+      sum (accumulate y:=d N while y=N) }
 ```
 
 ##### Blades in the Dark
