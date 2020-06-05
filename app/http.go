@@ -131,15 +131,20 @@ func (api *API) SwaggerRedirect(w http.ResponseWriter, r *http.Request) {
 //
 // ---
 // consumes:
-// - application/json
+// - text/plain
 // produces:
 // - application/json
 // parameters:
 // - name: "d"
-//   in: body
-//   description: "The Troll roll definition. This can also be passed as the query parameter 'd'."
+//   in: query
+//   description: "The Troll roll definition. This can passed as the query parameter 'd' or in the request body."
 //   type: "string"
-//   required: true
+//   required: false
+// - name: "d"
+//   in: body
+//   description: "The Troll roll definition. This can passed as the query parameter 'd' or in the request body."
+//   schema:
+//     type: string
 // - name: "n"
 //   in: "query"
 //   description: "The number of times to repeat the roll"
@@ -207,15 +212,20 @@ func (api *API) Roll(w http.ResponseWriter, r *http.Request) {
 //
 // ---
 // consumes:
-// - application/json
+// - text/plain
 // produces:
 // - application/json
 // parameters:
 // - name: "d"
-//   in: body
-//   description: "The Troll roll definition. This can also be passed as the query parameter 'd'."
+//   in: query
+//   description: "The Troll roll definition. This can passed as the query parameter 'd' or in the request body."
 //   type: "string"
-//   required: true
+//   required: false
+// - name: "d"
+//   in: body
+//   description: "The Troll roll definition. This can passed as the query parameter 'd' or in the request body."
+//   schema:
+//     type: string
 // - name: "c"
 //   in: "query"
 //   description: "What kind of cumulative probabilities you would like. One of 'ge' (default), 'gt', 'le', or 'lt'."

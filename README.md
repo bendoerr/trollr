@@ -48,7 +48,8 @@ results structured as JSON.
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| d | body | The Troll roll definition. This can also be passed as the query parameter 'd'. | Yes | string |
+| d | query | The Troll roll definition. This can passed as the query parameter 'd' or in the request body. | No | string |
+| d | body | The Troll roll definition. This can passed as the query parameter 'd' or in the request body. | No | string |
 | n | query | The number of times to repeat the roll | No | integer |
 
 ###### Responses
@@ -152,7 +153,8 @@ probabilities structured as JSON.
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| d | body | The Troll roll definition. This can also be passed as the query parameter 'd'. | Yes | string |
+| d | query | The Troll roll definition. This can passed as the query parameter 'd' or in the request body. | No | string |
+| d | body | The Troll roll definition. This can passed as the query parameter 'd' or in the request body. | No | string |
 | c | query | What kind of cumulative probabilities you would like. One of 'ge' (default), 'gt', 'le', or 'lt'. | No | string |
 
 ###### Responses
