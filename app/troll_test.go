@@ -44,7 +44,8 @@ var _ = Describe("Troll", func() {
 		func(rollName string) {
 			rollDef := testContent(rollName, "def")
 			stdout := testContent(rollName, "result_calc")
-			expectedResult := testContent(rollName, "json_calc_eq")
+			expectedResult1 := testContent(rollName, "json_calc_eq")
+			expectedResult2 := testContent(rollName, "json_calc_ge")
 			executor := exec.NewTestExecutor(stdout, "", 0, nil)
 			troll := NewTroll("", executor)
 
@@ -52,7 +53,10 @@ var _ = Describe("Troll", func() {
 			Expect(result.Err).To(BeNil())
 
 			resultJson, _ := jsoniter.MarshalToString(result.ProbabilitiesEq)
-			Expect(resultJson).To(MatchJSON(expectedResult))
+			Expect(resultJson).To(MatchJSON(expectedResult1))
+
+			resultJson, _ = jsoniter.MarshalToString(result.ProbabilitiesCum)
+			Expect(resultJson).To(MatchJSON(expectedResult2))
 		},
 		Entry("4d4 n=1", "4d4 n=1"),
 		Entry("blades in the dark n=1", "blades in the dark n=1"),
