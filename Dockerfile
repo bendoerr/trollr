@@ -20,5 +20,6 @@ ENV TROLL_BIN=/troll/main
 ENV LISTEN=":7891"
 EXPOSE 7891
 COPY --from=mosml /troll/main /troll/main
+COPY --from=builder /go/src/trollr/static/swagger.json /trollr/static/swagger.json
 COPY --from=builder /go/src/trollr/out/release/trollr-*-linux-amd64 /trollr/main
 CMD ["/trollr/main"]

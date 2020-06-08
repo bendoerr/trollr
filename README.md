@@ -16,6 +16,7 @@ Trollr: A HTTP/JSON API for Troll
 ![License: MIT](https://img.shields.io/github/license/bendoerr/trollr?color=blue&logo=open-source-initiative&logoColor=white&style=for-the-badge)
 ![Swagger Validator](https://img.shields.io/swagger/valid/3.0?logo=swagger&specUrl=https%3A%2F%2Fraw.githubusercontent.com%2Fbendoerr%2Ftrollr%2Fmaster%2Fstatic%2Fswagger.json&style=for-the-badge&logoColor=white)
 ![Go Reportcard](https://goreportcard.com/badge/github.com/bendoerr/trollr?style=for-the-badge)
+![Website](https://img.shields.io/website?down_message=offline&label=trollr.live&logo=semantic%20web&style=for-the-badge&up_message=online&url=https%3A%2F%2Ftrollr.live)
 
 Trollr is a simple wrapper around the amazing [Troll: A dice roll language and calculator][troll_homepage] created by 
 [Torben Mogensen][torben_homepage]. Trollr has no affiliation with Troll or Torben Mogensen but the author of Trollr
