@@ -51,7 +51,7 @@ func main() {
 
 		err := loader.Load(context.Background(), &cfg)
 		if err != nil {
-			fmt.Printf("configruation error: %s\n", err)
+			fmt.Printf("configurations error: %s\n", err)
 			os.Exit(1)
 		}
 

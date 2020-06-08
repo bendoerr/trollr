@@ -2,15 +2,16 @@ package main_test
 
 import (
 	"context"
+	"io"
+	"io/ioutil"
+	"path"
+	"runtime"
+
 	"github.com/bendoerr/trollr/exec"
 	jsoniter "github.com/json-iterator/go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
-	"io"
-	"io/ioutil"
-	"path"
-	"runtime"
 
 	. "github.com/bendoerr/trollr/app"
 )

@@ -1,7 +1,6 @@
 module github.com/bendoerr/trollr
 
 require (
-	github.com/davecgh/go-spew v1.1.1
 	github.com/didip/tollbooth v4.0.2+incompatible
 	github.com/felixge/httpsnoop v1.0.0
 	github.com/heetch/confita v0.9.1
@@ -16,7 +15,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/stretchr/testify v1.5.1 // indirect
 	go.uber.org/zap v1.15.0
-	golang.org/x/tools v0.0.0-20200601175630-2caf76543d99 // indirect
+	golang.org/x/tools v0.0.0-20200608174601-1b747fd94509 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	honnef.co/go/tools v0.0.1-2020.1.3 // indirect
 )

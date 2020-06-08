@@ -25,13 +25,14 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/markusthoemmes/goautoneg"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/markusthoemmes/goautoneg"
 
 	"github.com/bendoerr/trollr/middleware"
 	"github.com/didip/tollbooth"
@@ -47,7 +48,7 @@ type API struct {
 	troll  *Troll
 }
 
- func NewAPI(listen string, troll *Troll, logger *zap.Logger) *API {
+func NewAPI(listen string, troll *Troll, logger *zap.Logger) *API {
 	api := &API{
 		troll: troll,
 	}

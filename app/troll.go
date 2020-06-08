@@ -86,7 +86,7 @@ type CalcResult struct {
 	MeanDeviation    Probability   `json:",omitempty"`
 	ProbabilitiesCum Probabilities `json:",omitempty"`
 	ProbabilitiesEq  Probabilities `json:",omitempty"`
-	ProbabilitiesRaw string `json:"-"`
+	ProbabilitiesRaw string        `json:"-"`
 	Runtime          int64         `json:",omitempty"`
 	Spread           Probability   `json:",omitempty"`
 }
@@ -115,7 +115,7 @@ func (t *Troll) MakeRolls(ctx context.Context, num int, definition string) Rolls
 		return r
 	}
 
-	timeout, timeoutCancel := context.WithTimeout(ctx, 15 * time.Second)
+	timeout, timeoutCancel := context.WithTimeout(ctx, 15*time.Second)
 	defer timeoutCancel()
 
 	timing := servertiming.FromContext(ctx)
@@ -139,7 +139,6 @@ func (t *Troll) MakeRolls(ctx context.Context, num int, definition string) Rolls
 			break
 		}
 		line := strings.TrimSpace(line)
-
 
 		if len(line) < 1 {
 			continue
@@ -175,7 +174,7 @@ func (t *Troll) CalcRoll(ctx context.Context, definition string, cumulative stri
 	}
 	r.Cumulative = acc.String()
 
-	timeout, timeoutCancel := context.WithTimeout(ctx, 15 * time.Second)
+	timeout, timeoutCancel := context.WithTimeout(ctx, 15*time.Second)
 	defer timeoutCancel()
 
 	timing := servertiming.FromContext(ctx)
@@ -200,7 +199,6 @@ func (t *Troll) CalcRoll(ctx context.Context, definition string, cumulative stri
 		}
 		r.ProbabilitiesRaw = r.ProbabilitiesRaw + line
 		line = strings.TrimSpace(line)
-
 
 		if len(line) < 0 {
 			continue
