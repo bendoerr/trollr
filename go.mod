@@ -1,6 +1,7 @@
 module github.com/bendoerr/trollr
 
 require (
+	github.com/davecgh/go-spew v1.1.1
 	github.com/didip/tollbooth v4.0.2+incompatible
 	github.com/felixge/httpsnoop v1.0.0
 	github.com/heetch/confita v0.9.1

@@ -1,0 +1,5 @@
+\ Savage Worlds
+N:=8;
+
+max { sum (accumulate x:=d6 while x=6),
+      sum (accumulate y:=d N while y=N) }

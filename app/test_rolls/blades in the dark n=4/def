@@ -1,0 +1,13 @@
+\ Blades in the Dark (Outcome)
+N := 2;
+
+R := if N=0 then 2d6 else N d6;
+P := if N=0 then min(R) else max(R);
+C := if N=0 then count(minimal(R)) else count(maximal(R));
+
+if 6=P then
+  if 1<C then "6+ Critical success!"
+  else "6 Full success!"
+else
+  if 3<P then "4-5 Partial success!"
+  else "1-3 Bad outcome!"
