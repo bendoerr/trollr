@@ -35,6 +35,7 @@ var _ = Describe("Troll", func() {
 		Entry("4d4 n=3", "4d4 n=3"),
 		Entry("blades in the dark n=1", "blades in the dark n=1"),
 		Entry("blades in the dark n=4", "blades in the dark n=4"),
+		Entry("dnd character stats", "dnd character stats"),
 		Entry("savage worlds d8", "savage worlds d8"),
 		Entry("sum 3d6 n=1", "sum 3d6 n=1"),
 		Entry("sum 3d6 n=3", "sum 3d6 n=3"),
