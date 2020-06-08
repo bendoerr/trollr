@@ -71,6 +71,7 @@ type RollsResult struct {
 	NumTimes   int    `json:",omitempty"`
 	Runtime    int64  `json:",omitempty"`
 	Rolls      Rolls  `json:",omitempty"`
+	RollsRaw   string `json:"-"`
 	Err        error  `json:"-"`
 	Error      string `json:",omitempty"`
 }
@@ -85,6 +86,7 @@ type CalcResult struct {
 	MeanDeviation    Probability   `json:",omitempty"`
 	ProbabilitiesCum Probabilities `json:",omitempty"`
 	ProbabilitiesEq  Probabilities `json:",omitempty"`
+	ProbabilitiesRaw string `json:"-"`
 	Runtime          int64         `json:",omitempty"`
 	Spread           Probability   `json:",omitempty"`
 }
@@ -92,6 +94,8 @@ type CalcResult struct {
 var ProbabilitiesMatcher = regexp.MustCompile(`^([^:]*): *([0-9.]*) *([0-9.]*)`)
 
 var StatsMatcher = regexp.MustCompile(`Average = ([0-9.]*) *Spread = ([0-9.]*) *Mean deviation = ([0-9.]*)`)
+
+var NumbersMatcher = regexp.MustCompile(`^[0-9\s]*$`)
 
 func (t *Troll) MakeRolls(ctx context.Context, num int, definition string) RollsResult {
 	r := RollsResult{
@@ -132,7 +136,18 @@ func (t *Troll) MakeRolls(ctx context.Context, num int, definition string) Rolls
 			break
 		}
 
-		r.Rolls = append(r.Rolls, strings.Split(strings.TrimSpace(line), " "))
+		r.RollsRaw = r.RollsRaw + line + "\n"
+
+		cleanLine := strings.TrimSpace(line)
+		if len(cleanLine) < 1 {
+			continue
+		}
+
+		if NumbersMatcher.MatchString(cleanLine) {
+			r.Rolls = append(r.Rolls, strings.Split(cleanLine, " "))
+		} else {
+			r.Rolls = append(r.Rolls, []string{cleanLine})
+		}
 	}
 
 	return r
@@ -170,33 +185,47 @@ func (t *Troll) CalcRoll(ctx context.Context, definition string, cumulative stri
 		return r
 	}
 
+	var last_line string
+	var header_done bool
+
 	for {
 		line, err := xr.Stdout().ReadString('\n')
+		if err != nil {
+			break
+		}
+
+		r.ProbabilitiesRaw = r.ProbabilitiesRaw + "\n" + line
 
 		line = strings.TrimSpace(line)
 		if len(line) < 0 {
 			continue
 		}
 
-		if err != nil {
-			break
+		if !header_done {
+			header_done = true
+			continue
 		}
 
 		if m := ProbabilitiesMatcher.FindAllStringSubmatch(line, -1); len(m) > 0 {
 			ms := m[0]
+			key := ms[1]
+			if len(last_line) > 0 {
+				key = strings.TrimSpace(last_line + "\n" + key)
+				last_line = ""
+			}
 			f, err := strconv.ParseFloat(ms[2], 64)
 			if err != nil {
 				fmt.Println(err)
 				continue
 			}
-			r.ProbabilitiesEq[ms[1]] = Probability(f)
+			r.ProbabilitiesEq[key] = Probability(f)
 
 			f, err = strconv.ParseFloat(ms[3], 64)
 			if err != nil {
 				fmt.Println(err)
 				continue
 			}
-			r.ProbabilitiesCum[ms[1]] = Probability(f)
+			r.ProbabilitiesCum[key] = Probability(f)
 		} else if m := StatsMatcher.FindAllStringSubmatch(line, -1); len(m) > 0 {
 			ms := m[0]
 			f, err := strconv.ParseFloat(ms[1], 64)
@@ -222,6 +251,12 @@ func (t *Troll) CalcRoll(ctx context.Context, definition string, cumulative stri
 			}
 
 			r.MeanDeviation = Probability(f)
+		} else {
+			if len(last_line) > 1 {
+				last_line = last_line + "\n" + line
+			} else {
+				last_line = line
+			}
 		}
 	}
 
