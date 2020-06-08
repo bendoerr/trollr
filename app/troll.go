@@ -115,9 +115,12 @@ func (t *Troll) MakeRolls(ctx context.Context, num int, definition string) Rolls
 		return r
 	}
 
+	timeout, timeoutCancel := context.WithTimeout(ctx, 15 * time.Second)
+	defer timeoutCancel()
+
 	timing := servertiming.FromContext(ctx)
 	metric := timing.NewMetric("submit").Start()
-	xr := t.executor(ctx, t.path, &definition, strconv.Itoa(num))
+	xr := t.executor(timeout, t.path, &definition, strconv.Itoa(num))
 	metric.Stop()
 	r.Runtime = metric.Duration.Milliseconds()
 
@@ -173,9 +176,12 @@ func (t *Troll) CalcRoll(ctx context.Context, definition string, cumulative stri
 	}
 	r.Cumulative = acc.String()
 
+	timeout, timeoutCancel := context.WithTimeout(ctx, 15 * time.Second)
+	defer timeoutCancel()
+
 	timing := servertiming.FromContext(ctx)
 	metric := timing.NewMetric("submit").Start()
-	xr := t.executor(ctx, t.path, &definition, "0", acc.String())
+	xr := t.executor(timeout, t.path, &definition, "0", acc.String())
 	metric.Stop()
 	r.Runtime = metric.Duration.Milliseconds()
 
