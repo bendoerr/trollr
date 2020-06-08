@@ -25,6 +25,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/markusthoemmes/goautoneg"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -196,9 +197,16 @@ func (api *API) Roll(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	err := jsoniter.NewEncoder(w).Encode(res)
-	if err != nil {
+	accepts := goautoneg.ParseAccept(r.Header.Get("Accept"))
+	if len(accepts) > 0 && accepts[0].Type == "text" {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		_, err := w.Write([]byte(res.RollsRaw))
 		fmt.Println(err)
+	} else {
+		err := jsoniter.NewEncoder(w).Encode(res)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }
 
@@ -269,8 +277,15 @@ func (api *API) Calc(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	err := jsoniter.NewEncoder(w).Encode(res)
-	if err != nil {
+	accepts := goautoneg.ParseAccept(r.Header.Get("Accept"))
+	if len(accepts) > 0 && accepts[0].Type == "text" {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		_, err := w.Write([]byte(res.ProbabilitiesRaw))
 		fmt.Println(err)
+	} else {
+		err := jsoniter.NewEncoder(w).Encode(res)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }

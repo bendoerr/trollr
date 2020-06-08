@@ -7,6 +7,7 @@ require (
 	github.com/heetch/confita v0.9.1
 	github.com/json-iterator/go v1.1.9
 	github.com/kr/text v0.2.0 // indirect
+	github.com/markusthoemmes/goautoneg v0.0.0-20190713162725-c6008fefa5b1
 	github.com/mitchellh/go-server-timing v1.0.0
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/onsi/ginkgo v1.12.3

@@ -134,22 +134,21 @@ func (t *Troll) MakeRolls(ctx context.Context, num int, definition string) Rolls
 	var err error
 	for {
 		line, err = xr.Stdout().ReadString('\n')
-
+		r.RollsRaw = r.RollsRaw + line
 		if err != nil {
 			break
 		}
+		line := strings.TrimSpace(line)
 
-		r.RollsRaw = r.RollsRaw + line + "\n"
 
-		cleanLine := strings.TrimSpace(line)
-		if len(cleanLine) < 1 {
+		if len(line) < 1 {
 			continue
 		}
 
-		if NumbersMatcher.MatchString(cleanLine) {
-			r.Rolls = append(r.Rolls, strings.Split(cleanLine, " "))
+		if NumbersMatcher.MatchString(line) {
+			r.Rolls = append(r.Rolls, strings.Split(line, " "))
 		} else {
-			r.Rolls = append(r.Rolls, []string{cleanLine})
+			r.Rolls = append(r.Rolls, []string{line})
 		}
 	}
 
@@ -199,10 +198,10 @@ func (t *Troll) CalcRoll(ctx context.Context, definition string, cumulative stri
 		if err != nil {
 			break
 		}
-
-		r.ProbabilitiesRaw = r.ProbabilitiesRaw + "\n" + line
-
+		r.ProbabilitiesRaw = r.ProbabilitiesRaw + line
 		line = strings.TrimSpace(line)
+
+
 		if len(line) < 0 {
 			continue
 		}
