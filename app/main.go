@@ -42,6 +42,8 @@ func main() {
 	for {
 		cfg := AppConfig{
 			Listen: ":6789",
+			SwaggerFile: "static/swagger.json",
+			SwaggerRedirect: "https://app.swaggerhub.com/apis-docs/bendoerr/Trollr",
 		}
 
 		// Load the configuration
@@ -81,17 +83,19 @@ func main() {
 		lx := exec.NewLoggingExecutor(tx.Run, logger)
 		px := exec.NewPoolExecutor(lx.Run)
 		troll := NewTroll(cfg.TrollBin, px.Run)
-		http := NewAPI(cfg.Listen, troll, logger.Named("http"))
+		http := NewAPI(cfg.Listen, troll, logger.Named("http"), cfg.SwaggerFile, cfg.SwaggerRedirect)
 
 		// Start the HTTP Server
 		http.Start()
 
 		// Confirm configuration values
 		fmt.Printf("  Running with Configuration:\n")
-		fmt.Printf("    Listen:    '%s'\n", cfg.Listen)
-		fmt.Printf("    Log File:  '%s'\n", cfg.LogFile)
-		fmt.Printf("    Mosmllib:  '%s'\n", cfg.Mosmllib)
-		fmt.Printf("    Troll Bin: '%s'\n", cfg.TrollBin)
+		fmt.Printf("    Listen:       '%s'\n", cfg.Listen)
+		fmt.Printf("    Log File:     '%s'\n", cfg.LogFile)
+		fmt.Printf("    Mosmllib:     '%s'\n", cfg.Mosmllib)
+		fmt.Printf("    Swagger File: '%s'\n", cfg.SwaggerFile)
+		fmt.Printf("    Redirect:     '%s'\n", cfg.SwaggerRedirect)
+		fmt.Printf("    Troll Bin:    '%s'\n", cfg.TrollBin)
 		fmt.Printf("\n\n")
 
 		// Signal and exit handling from here down

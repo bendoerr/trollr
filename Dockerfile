@@ -17,9 +17,10 @@ RUN make clean && make linux
 
 FROM ubuntu
 ENV TROLL_BIN=/troll/main
+ENV SWAGGER_FILE=/trollr/swagger.json
 ENV LISTEN=":7891"
 EXPOSE 7891
 COPY --from=mosml /troll/main /troll/main
-COPY --from=builder /go/src/trollr/static/swagger.json /trollr/static/swagger.json
+COPY --from=builder /go/src/trollr/static/swagger.json /trollr/swagger.json
 COPY --from=builder /go/src/trollr/out/release/trollr-*-linux-amd64 /trollr/main
 CMD ["/trollr/main"]

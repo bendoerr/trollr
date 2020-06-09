@@ -46,9 +46,11 @@ type API struct {
 	server *http.Server
 	mux    *http.ServeMux
 	troll  *Troll
+	swaggerFile string
+	swaggerRedirect string
 }
 
-func NewAPI(listen string, troll *Troll, logger *zap.Logger) *API {
+func NewAPI(listen string, troll *Troll, logger *zap.Logger, swaggerFile, swaggerRedirect string) *API {
 	api := &API{
 		troll: troll,
 	}
@@ -92,6 +94,9 @@ func NewAPI(listen string, troll *Troll, logger *zap.Logger) *API {
 
 	api.server.Handler = h
 
+	api.swaggerFile = swaggerFile
+	api.swaggerRedirect = swaggerRedirect
+
 	return api
 }
 
@@ -114,13 +119,11 @@ func (api *API) DefaultNotFound(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) SwaggerJson(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "static/swagger.json")
+	http.ServeFile(w, r, api.swaggerFile)
 }
 
 func (api *API) SwaggerRedirect(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r,
-		"https://app.swaggerhub.com/apis-docs/bendoerr/Trollr",
-		http.StatusTemporaryRedirect)
+	http.Redirect(w, r, api.swaggerRedirect, http.StatusTemporaryRedirect)
 }
 
 // swagger:operation POST /roll API roll
